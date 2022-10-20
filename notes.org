@@ -1,0 +1,155 @@
+* Notes
+<2022-10-20 Thu 15:22>: These are the commands I used to install the dependencies of this lab and set it up accordingly:
+#+begin_src bash
+samuelbanya@Samuels-MBP ~/hub/Development/code/phase-4/phase-4-rails-routing-basics-lab $ bundle install
+Fetching gem metadata from https://rubygems.org/...........
+Resolving dependencies...
+Using rake 13.0.3
+Using concurrent-ruby 1.1.8
+Using minitest 5.14.4
+Using zeitwerk 2.4.2
+Using builder 3.2.4
+Using erubi 1.10.0
+Using racc 1.5.2
+Using crass 1.0.6
+Using rack 2.2.3
+Using nio4r 2.5.7
+Using websocket-extensions 0.1.5
+Using marcel 1.0.1
+Using mini_mime 1.0.3
+Using bundler 2.2.16
+Using byebug 11.1.3
+Using diff-lcs 1.4.4
+Using ffi 1.15.0
+Using rb-fsevent 0.10.4
+Using method_source 1.0.0
+Using thor 1.1.0
+Using rspec-support 3.10.2
+Using rspec-json_expectations 2.2.0
+Using sqlite3 1.4.2
+Using i18n 1.8.10
+Using tzinfo 2.0.4
+Using nokogiri 1.11.3 (x86_64-darwin)
+Using rack-test 1.1.0
+Using rspec-expectations 3.10.1
+Using mail 2.7.1
+Using websocket-driver 0.7.3
+Using loofah 2.9.1
+Using rack-cors 1.1.1
+Using rails-html-sanitizer 1.3.0
+Using rspec-core 3.10.1
+Using rb-inotify 0.10.1
+Using rspec-mocks 3.10.2
+Using listen 3.5.1
+Using puma 5.2.2
+Using sprockets 4.0.2
+Using activesupport 6.1.3.1
+Using rails-dom-testing 2.0.3
+Using globalid 0.4.2
+Using actionview 6.1.3.1
+Using activejob 6.1.3.1
+Using actionpack 6.1.3.1
+Using shoulda-matchers 4.5.1
+Using actioncable 6.1.3.1
+Using activemodel 6.1.3.1
+Using railties 6.1.3.1
+Using sprockets-rails 3.2.2
+Using rspec-rails 5.0.1
+Using activerecord 6.1.3.1
+Using actionmailer 6.1.3.1
+Using activestorage 6.1.3.1
+Using actionmailbox 6.1.3.1
+Using actiontext 6.1.3.1
+Using rails 6.1.3.1
+Bundle complete! 10 Gemfile dependencies, 57 gems now installed.
+Use `bundle info [gemname]` to see where a bundled gem is installed.
+
+samuelbanya@Samuels-MBP ~/hub/Development/code/phase-4/phase-4-rails-routing-basics-lab $ rails db:migrate db:seed
+== 20210430181635 CreateStudents: migrating ===================================
+-- create_table(:students)
+   -> 0.0018s
+== 20210430181635 CreateStudents: migrated (0.0019s) ==========================
+
+🌱 Seeding students...
+✅ Done seeding
+#+end_src
+
+I then modified the 'config/routes.rb' with the following additional route:
+#+begin_src ruby
+Rails.application.routes.draw do
+  # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
+  get "students", to: "students#index"
+end
+#+end_src
+
+I then started up the rails server with the 'rails s' command.
+
+I then generated a corresponding rails controller with the following 'rails g controller' command:
+#+begin_src ruby
+samuelbanya@Samuels-MBP ~/hub/Development/code/phase-4/phase-4-rails-routing-basics-lab $ rails g controller Students --no-test-framework
+      create  app/controllers/students_controller.rb
+#+end_src
+
+I then modified the 'app/controllers/students_controller.rb' controller file with the following contents:
+#+begin_src ruby
+class StudentsController < ApplicationController
+    def index
+        students = Student.all()
+        render json: students
+    end
+end
+#+end_src
+
+I then proceeded to modify the 'config/routes.rb' routes file by adding the '/students/grades' route accordingly:
+#+begin_src ruby
+Rails.application.routes.draw do
+  # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
+  get "students", to: "students#index"
+  get "students/grades", to: "students#grades"
+end
+#+end_src
+
+I then modified the '/app/controllers/students_controller.rb' controlelr file with the following revisions, and made sure to use the Active Records docs page on how to use .order() in the final chaining method ("https://guides.rubyonrails.org/active_record_querying.html", see the '4 Ordering' section):
+#+begin_src ruby
+class StudentsController < ApplicationController
+    def index
+        students = Student.all()
+        render json: students
+    end
+
+    def grades
+        grades = Student.all.order(grade: :desc)
+        render json: grades
+    end
+end
+#+end_src
+
+I then did the 'Bonus' section by configuring the 'config/routes.rb' routes file with the following contents:
+#+begin_src ruby
+Rails.application.routes.draw do
+  # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
+  get "students", to: "students#index"
+  get "students/grades", to: "students#grades"
+  get "students/highest-grade", to: "students#highest_grade"
+end
+#+end_src
+
+I then modified the 'app/controllers/students_controller.rb' controllers file with the following contents:
+#+begin_src ruby
+class StudentsController < ApplicationController
+    def index
+        students = Student.all()
+        render json: students
+    end
+
+    def grades
+        grades = Student.all.order(grade: :desc)
+        render json: grades
+    end
+
+    def highest_grade
+        highest_grade = Student.all.order(grade: :desc).first()
+        render json: highest_grade
+    end
+end
+#+end_src
